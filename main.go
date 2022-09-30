@@ -86,22 +86,25 @@ func exportToHtml(spelers []Speler, ronde int, aantalRonden int, aantalGroepen i
 		swaarden[i] = strconv.Itoa(waarden[i])
 	}
 	var filename string
-	var htmlcode string
+	var htmlcode string = "<!DOCTYPE html><html><head><style>table { text-align:center; width:500px; }</style></head><body>"
 	if ronde != aantalRonden {
 		filename = "Round_" + swaarden[0] + ".html"
-		htmlcode = "<html><body><h1>Ronde "+swaarden[0]+"&emsp;/&emsp;" + swaarden[1]  + "</h1>"
+		htmlcode = "<h1>Ronde "+swaarden[0]+"&emsp;/&emsp;" + swaarden[1]  + "</h1>"
 	} else {
 		filename = "EINDSTAND.html"
-		htmlcode = "<html><body><h1>EINDSTAND</h1>"
+		htmlcode = "<h1>EINDSTAND</h1>"
 	}
 		htmlcode += "<br><br>Games per groep: " + swaarden[3]
 	for g := 1; g <= aantalGroepen; g++ {
 		htmlcode += "<br><br><h2>GROEP " + strconv.Itoa(g)
+		htmlcode += "<table><tr><th>Plaats</th><th>Naam</th><th>Level</th><th>Score</th><th>Totaal Score</th></tr>"
 		for s := 0; s < sg; s++ {
 			plaats := s + ((g - 1) * sg)
+			levelS := strconv.Itoa(spelers[plaats].level)
 			scoreS := fmt.Sprintf("%.1f", spelers[plaats].score)
-			htmlcode += "<br>&emsp;&emsp;" + strconv.Itoa(spelers[plaats].positie) + "&ensp;" + spelers[plaats].naam + "&emsp;&emsp;Score:  " +  scoreS + "&ensp;/&ensp;" + strconv.Itoa((sg-1)*gamesPerGroep)
+			htmlcode += "<tr><td>" + strconv.Itoa(spelers[plaats].positie) + "</td><td>" + spelers[plaats].naam + "</td><td>" +  levelS + "</td><td>" + scoreS + "</td><td>" + strconv.Itoa((sg-1)*gamesPerGroep) + "</td></tr>"
 		}
+		htmlcode += "</table>"
 	}
 	htmlcode += "</body></html>"	
 	file, err := os.Create(filename)
