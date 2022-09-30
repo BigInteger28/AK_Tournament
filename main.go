@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"sort"
+	"strconv"
+	"os"
 )
 
 type Speler struct {
@@ -71,6 +73,29 @@ func maakVolgendeRonde(spelers []Speler, sg int, aantalGroepen int) {
 	}
 }
 
+func check(e error) {
+	if e != nil {
+		panic(e)
+	}
+}
+
+func exportToHtml(ronde int, aantalRonden int) {
+	var waarden = [2]int {ronde, aantalRonden}
+	swaarden := make([]string, 2)
+	for i := 0; i < 2; i++ {
+		swaarden[i] = strconv.Itoa(waarden[i])
+	}
+	var filename string = "Round_" + swaarden[0] + ".html"
+	var htmlcode string = "<html><body><h1>Ronde "+swaarden[0]+"   /   " + swaarden[1]  + "</h1>"
+	htmlcode += "<br><br>Games per groep: "
+	htmlcode += "</body></html>"	
+	file, err := os.Create(filename)
+	check(err)
+	file.WriteString(string(htmlcode))
+	file.Close()
+	file.Sync()
+}
+
 func main() {
 	var s int
 	var sg int
@@ -114,6 +139,7 @@ func main() {
 				fmt.Println("1. TOON EINDSTAND")
 			}
 			fmt.Println("2. Vul scores in van een groep")
+			fmt.Println("3. EXPORT CURRENT TO HTML")
 			fmt.Print("Keuze: ")
 			fmt.Scanln(&keuze)
 			if keuze == 2 {
@@ -127,6 +153,9 @@ func main() {
 						fmt.Println("\t\t", spelers[plaats].positie, " ", spelers[plaats].naam, "\t\tLevel:", spelers[plaats].level, "\tScore: ", spelers[plaats].score, "/", (sg-1)*gamesPerGroep)
 					}
 				}
+			}
+			if keuze == 3 {
+				exportToHtml(ronde, aantalRonden)
 			}
 		}
 		if ronde != aantalRonden {
