@@ -86,7 +86,7 @@ func exportToHtml(spelers []Speler, ronde int, aantalRonden int, aantalGroepen i
 		swaarden[i] = strconv.Itoa(waarden[i])
 	}
 	var filename string
-	var htmlcode string = "<!DOCTYPE html><html><head><style>td { text-align:center; width:800px; }</style></head><body>"
+	var htmlcode string = "<!DOCTYPE html><html><head><style>td { text-align:center; width:150px; }</style></head><body>"
 	if ronde != aantalRonden {
 		filename = "Round_" + swaarden[0] + ".html"
 		htmlcode += "<h1>Ronde "+swaarden[0]+"&emsp;/&emsp;" + swaarden[1]  + "</h1>"
