@@ -79,15 +79,30 @@ func check(e error) {
 	}
 }
 
-func exportToHtml(ronde int, aantalRonden int) {
-	var waarden = [2]int {ronde, aantalRonden}
-	swaarden := make([]string, 2)
-	for i := 0; i < 2; i++ {
+func exportToHtml(spelers []Speler, ronde int, aantalRonden int, aantalGroepen int, gamesPerGroep int, sg int) {
+	var waarden = [4]int {ronde, aantalRonden, aantalGroepen, gamesPerGroep}
+	swaarden := make([]string, 4)
+	for i := 0; i < 4; i++ {
 		swaarden[i] = strconv.Itoa(waarden[i])
 	}
-	var filename string = "Round_" + swaarden[0] + ".html"
-	var htmlcode string = "<html><body><h1>Ronde "+swaarden[0]+"   /   " + swaarden[1]  + "</h1>"
-	htmlcode += "<br><br>Games per groep: "
+	var filename string
+	var htmlcode string
+	if ronde != aantalRonden {
+		filename = "Round_" + swaarden[0] + ".html"
+		htmlcode = "<html><body><h1>Ronde "+swaarden[0]+"&emsp;/&emsp;" + swaarden[1]  + "</h1>"
+	} else {
+		filename = "EINDSTAND.html"
+		htmlcode = "<html><body><h1>EINDSTAND</h1>"
+	}
+		htmlcode += "<br><br>Games per groep: " + swaarden[3]
+	for g := 1; g <= aantalGroepen; g++ {
+		htmlcode += "<br><br><h2>GROEP " + strconv.Itoa(g)
+		for s := 0; s < sg; s++ {
+			plaats := s + ((g - 1) * sg)
+			scoreS := fmt.Sprintf("%.1f", spelers[plaats].score)
+			htmlcode += "<br>&emsp;&emsp;" + strconv.Itoa(spelers[plaats].positie) + "&ensp;" + spelers[plaats].naam + "&emsp;&emsp;Score:  " +  scoreS + "&ensp;/&ensp;" + strconv.Itoa((sg-1)*gamesPerGroep)
+		}
+	}
 	htmlcode += "</body></html>"	
 	file, err := os.Create(filename)
 	check(err)
@@ -155,7 +170,7 @@ func main() {
 				}
 			}
 			if keuze == 3 {
-				exportToHtml(ronde, aantalRonden)
+				exportToHtml(spelers, ronde, aantalRonden, aantalGroepen, gamesPerGroep, sg)
 			}
 		}
 		if ronde != aantalRonden {
