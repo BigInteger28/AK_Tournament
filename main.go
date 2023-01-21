@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"sort"
@@ -79,7 +80,52 @@ func check(e error) {
 	}
 }
 
-func exportToHtml(spelers []Speler, ronde int, aantalRonden int, aantalGroepen int, gamesPerGroep int, sg int) {
+func loadFile() []string {
+	var tourn []string
+	file, err := os.Open("tourn.txt")
+	check(err)
+	defer file.Close()
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		tourn = append(tourn, scanner.Text())
+	}
+	return tourn
+}
+
+func importeerTourn() []Speler {
+	tourn := loadFile()
+	var spelers = make([]Speler, len(tourn)/2)
+	for i := range tourn {
+		spelers[i/2].id = i
+		spelers[i/2].positie = (i/2)+1
+		if i%2 == 0 {
+			spelers[i/2].naam = tourn[i]
+		} else {
+			l, err := strconv.Atoi(tourn[i])
+			if err != nil {
+				fmt.Println("Error")
+			}
+			spelers[i/2].level = l
+		}
+	}
+	return spelers
+}
+
+func exportPlayers(spelers *[]Speler) {
+	file, err := os.Create("./tourn.txt")
+	check(err)
+	for i := range *spelers {
+		file.WriteString((*spelers)[i].naam)
+		file.WriteString("\n")
+		level := strconv.Itoa((*spelers)[i].level)
+		file.WriteString(level)
+		file.WriteString("\n")
+	}
+	file.Close()
+	file.Sync()
+}
+
+func exportToHtml(spelers []Speler, ronde int, aantalRonden int, aantalGroepen int, gamesPerGroep int, sg int, title string) {
 	var waarden = [4]int{ronde, aantalRonden, aantalGroepen, gamesPerGroep}
 	swaarden := make([]string, 4)
 	for i := 0; i < 4; i++ {
@@ -89,7 +135,7 @@ func exportToHtml(spelers []Speler, ronde int, aantalRonden int, aantalGroepen i
 	var htmlcode string = "<!DOCTYPE html><html><head><style>td { text-align:center; width:150px; font-weight:normal;}</style></head><body>"
 	if ronde <= aantalRonden {
 		filename = "Round_" + swaarden[0] + ".html"
-		htmlcode += "<h1>Ronde " + swaarden[0] + "&emsp;/&emsp;" + swaarden[1] + "</h1>"
+		htmlcode += "<h1>" + title + "</h1></br><h1>Ronde " + swaarden[0] + "&emsp;/&emsp;" + swaarden[1] + "</h1>"
 	} else {
 		filename = "EINDSTAND.html"
 		htmlcode += "<h1>EINDSTAND</h1>"
@@ -128,22 +174,39 @@ func exportToHtml(spelers []Speler, ronde int, aantalRonden int, aantalGroepen i
 func main() {
 	var s int
 	var sg int
-	fmt.Print("Aantal spelers: ")
-	fmt.Scanln(&s)
+	var title string
+	var firstchoice int
+	var spelers []Speler
+	fmt.Print("Titel: ")
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+	title = scanner.Text()
+	fmt.Scanln(&title)
+	fmt.Println("1.Maak spelers aan")
+	fmt.Println("2.Importeer spelers uit file")
+	fmt.Print("Keuze: ")
+	fmt.Scanln(&firstchoice)
+	if firstchoice == 1 {
+		fmt.Print("Aantal spelers: ")
+		fmt.Scanln(&s)		
+		spelers = make([]Speler, s)
+		for i := 0; i < s; i++ {
+			spelers[i].id = i
+			fmt.Print("Naam: ")
+			fmt.Scanln(&spelers[i].naam)
+			fmt.Print(spelers[i].naam, " is level: ")
+			fmt.Scanln(&spelers[i].level)
+		}
+		sorteerPerLevel(spelers)
+		for i := range spelers {
+			spelers[i].positie = i + 1
+		}
+	} else {
+		spelers = importeerTourn()
+		s = len(spelers)
+	}
 	fmt.Print("Spelers per groep: ")
 	fmt.Scanln(&sg)
-	spelers := make([]Speler, s)
-	for i := 0; i < s; i++ {
-		spelers[i].id = i
-		fmt.Print("Naam: ")
-		fmt.Scanln(&spelers[i].naam)
-		fmt.Print(spelers[i].naam, " is level: ")
-		fmt.Scanln(&spelers[i].level)
-	}
-	sorteerPerLevel(spelers)
-	for i := range spelers {
-		spelers[i].positie = i + 1
-	}
 	aantalGroepen := s / sg
 	aantalRonden := aantalGroepen + 1
 	gamesPerGroep := sg - 1
@@ -169,6 +232,10 @@ func main() {
 			}
 			fmt.Println("2. Vul scores in van een groep")
 			fmt.Println("3. EXPORT CURRENT TO HTML")
+			fmt.Println("4. Verander titel")
+			fmt.Println("5. Wijzig gebruiker gegevens")
+			fmt.Println("6. Importeer spelers")
+			fmt.Println("7. Exporteer spelers")
 			fmt.Print("Keuze: ")
 			fmt.Scanln(&keuze)
 			if keuze == 2 {
@@ -184,7 +251,37 @@ func main() {
 				}
 			}
 			if keuze == 3 {
-				exportToHtml(spelers, ronde, aantalRonden, aantalGroepen, gamesPerGroep, sg)
+				exportToHtml(spelers, ronde, aantalRonden, aantalGroepen, gamesPerGroep, sg, title)
+			}
+
+			if keuze == 4 {
+				fmt.Print("Titel: ")
+				fmt.Scanln(&title)
+			}
+
+			if keuze == 5 {
+				var speler int
+				var naam string
+				var level int
+				for i := range spelers {
+					fmt.Println(i, spelers[i].naam, spelers[i].level)
+				}
+				fmt.Print("Kies speler: ")
+				fmt.Scanln(&speler)
+				fmt.Print("Naam: ")
+				fmt.Scanln(&naam)
+				fmt.Print("Level: ")
+				fmt.Scanln(&level)
+				spelers[speler].naam = naam
+				spelers[speler].level = level
+			}
+			
+			if keuze == 6 {
+				spelers = importeerTourn()
+			}
+			
+			if keuze == 7 {
+				exportPlayers(&spelers)
 			}
 		}
 		if ronde < aantalRonden {
@@ -195,7 +292,7 @@ func main() {
 				fmt.Println("\t\t", spelers[o].positie, " ", spelers[o].naam, "\t\tLevel:", spelers[o].level)
 			}
 			ronde++
-			exportToHtml(spelers, ronde, aantalRonden, aantalGroepen, gamesPerGroep, sg)
+			exportToHtml(spelers, ronde, aantalRonden, aantalGroepen, gamesPerGroep, sg, title)
 		}
 	}
 	fmt.Scanln()
