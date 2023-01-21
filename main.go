@@ -8,6 +8,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"os"
+	"bufio"
 )
 
 //Special thanks to Robin for the scalability update
