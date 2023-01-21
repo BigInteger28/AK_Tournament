@@ -94,18 +94,24 @@ func loadFile() []string {
 
 func importeerTourn() []Speler {
 	tourn := loadFile()
-	var spelers = make([]Speler, len(tourn)/2)
+	var spelers = make([]Speler, len(tourn)/3)
 	for i := range tourn {
-		spelers[i/2].id = i
-		spelers[i/2].positie = (i/2)+1
-		if i%2 == 0 {
-			spelers[i/2].naam = tourn[i]
-		} else {
+		spelers[i/3].id = i
+		spelers[i/3].positie = (i/3)+1
+		if i%3 == 0 {
+			spelers[i/3].naam = tourn[i]
+		} else if i%3 == 1 {
 			l, err := strconv.Atoi(tourn[i])
 			if err != nil {
 				fmt.Println("Error")
 			}
-			spelers[i/2].level = l
+			spelers[i/3].level = l
+		} else {
+			s, err := strconv.ParseFloat(tourn[i], 64)
+			if err != nil {
+				fmt.Println("Error")
+			}
+			spelers[i/3].score = s
 		}
 	}
 	return spelers
@@ -119,6 +125,9 @@ func exportPlayers(spelers *[]Speler) {
 		file.WriteString("\n")
 		level := strconv.Itoa((*spelers)[i].level)
 		file.WriteString(level)
+		file.WriteString("\n")
+		score := fmt.Sprintf("%.1f", (*spelers)[i].score)
+		file.WriteString(score)
 		file.WriteString("\n")
 	}
 	file.Close()
@@ -177,12 +186,11 @@ func main() {
 	var title string
 	var firstchoice int
 	var spelers []Speler
-	fmt.Print("Titel: ")
 	scanner := bufio.NewScanner(os.Stdin)
+	fmt.Print("Titel: ")	
 	scanner.Scan()
 	title = scanner.Text()
-	fmt.Scanln(&title)
-	fmt.Println("1.Maak spelers aan")
+	fmt.Println("\n1.Maak spelers aan")
 	fmt.Println("2.Importeer spelers uit file")
 	fmt.Print("Keuze: ")
 	fmt.Scanln(&firstchoice)
@@ -226,9 +234,9 @@ func main() {
 		//zorg dat het programma niet crasht bij invullen verkeerd nummer of string
 		for keuze != 1 {
 			if ronde < aantalRonden {
-				fmt.Println("1. Maak volgende ronde aan")
+				fmt.Println("\n1. Maak volgende ronde aan")
 			} else {
-				fmt.Println("1. TOON EINDSTAND")
+				fmt.Println("\n1. TOON EINDSTAND")
 			}
 			fmt.Println("2. Vul scores in van een groep")
 			fmt.Println("3. EXPORT CURRENT TO HTML")
@@ -282,6 +290,16 @@ func main() {
 			
 			if keuze == 7 {
 				exportPlayers(&spelers)
+			}
+			
+			fmt.Println("\nRONDE ", ronde, " / ", aantalRonden, "\t\tGames per groep: ", gamesPerGroep)
+			sorteerPerPlaats(spelers)
+			for groep := 1; groep <= aantalGroepen; groep++ {
+				fmt.Println("\n\tGROEP ", groep)
+				for s := 0; s < sg; s++ {
+					plaats := s + ((groep - 1) * sg)
+					fmt.Println("\t\t", spelers[plaats].positie, " ", spelers[plaats].naam, "\t\tLevel:", spelers[plaats].level, "\tScore: ", spelers[plaats].score, "/", (sg-1)*gamesPerGroep)
+				}
 			}
 		}
 		if ronde < aantalRonden {
