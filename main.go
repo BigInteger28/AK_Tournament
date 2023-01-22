@@ -199,8 +199,9 @@ func main() {
 		spelers = make([]Speler, s)
 		for i := 0; i < s; i++ {
 			spelers[i].id = i
-			fmt.Print("Naam: ")
-			fmt.Scanln(&spelers[i].naam)
+			fmt.Print("Naam: ")	
+			scanner.Scan()
+			spelers[i].naam = scanner.Text()
 			fmt.Print(spelers[i].naam, " is level: ")
 			fmt.Scanln(&spelers[i].level)
 		}
