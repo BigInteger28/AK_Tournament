@@ -216,7 +216,7 @@ func main() {
 	fmt.Print("Spelers per groep: ")
 	fmt.Scanln(&sg)
 	aantalGroepen := s / sg
-	aantalRonden := aantalGroepen + 1
+	aantalRonden := aantalGroepen + 2
 	gamesPerGroep := sg - 1
 
 	for ronde := 1; ronde <= aantalRonden; ronde++ {
