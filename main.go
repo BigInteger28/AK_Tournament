@@ -212,10 +212,11 @@ func main() {
 	fmt.Print("Spelers per groep: ")
 	fmt.Scanln(&sg)
 	aantalGroepen := s / sg
+	var aantalRonden int
 	if aantalGroepen <= sg {
-		aantalRonden := sg + 1
+		aantalRonden = sg + 1
 	} else {
-		aantalRonden := aantalGroepen + 1
+		aantalRonden = aantalGroepen + 1
 	}	
 	gamesPerGroep := sg - 1
 
