@@ -50,7 +50,7 @@ func stelGroepIn(spelers []Speler, sg int, groep int) {
 }
 
 func maakVolgendeRonde(spelers []Speler, sg int, aantalGroepen int) {
-	var bot int = sg / 2
+	var bot int = (sg / 2)+1
 	var top int = (sg + 1) / 3
 	for g := 1; g <= aantalGroepen; g++ {
 		if g != 1 {
@@ -59,12 +59,8 @@ func maakVolgendeRonde(spelers []Speler, sg int, aantalGroepen int) {
 			}
 		}
 		if g != aantalGroepen {
-			for i := 0; i < bot; i++ {
-				if sg%2 == 0 {
-					spelers[i+((g-1)*sg)+bot].positie += bot
-				} else {
-					spelers[i+((g-1)*sg)+bot+1].positie += bot
-				}
+			for i := bot; i < sg; i++ {
+				spelers[i+((g-1)*sg)].positie += top
 			}
 		}
 	}
@@ -216,7 +212,11 @@ func main() {
 	fmt.Print("Spelers per groep: ")
 	fmt.Scanln(&sg)
 	aantalGroepen := s / sg
-	aantalRonden := aantalGroepen + 1
+	if aantalGroepen <= sg {
+		aantalRonden := sg + 1
+	} else {
+		aantalRonden := aantalGroepen + 1
+	}	
 	gamesPerGroep := sg - 1
 
 	for ronde := 1; ronde <= aantalRonden; ronde++ {
@@ -311,7 +311,8 @@ func main() {
 		if ronde < aantalRonden {
 			maakVolgendeRonde(spelers, sg, aantalGroepen)
 		} else {
-			fmt.Println()
+			fmt.Println("\n\n")
+			maakVolgendeRonde(spelers, sg, aantalGroepen)
 			for o := range spelers {
 				fmt.Println("\t\t", spelers[o].positie, " ", spelers[o].naam, "\t\tLevel:", spelers[o].level)
 			}
