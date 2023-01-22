@@ -186,6 +186,7 @@ func main() {
 	var title string
 	var firstchoice int
 	var spelers []Speler
+	var ronde int
 	scanner := bufio.NewScanner(os.Stdin)
 	fmt.Print("Titel: ")	
 	scanner.Scan()
@@ -209,9 +210,12 @@ func main() {
 		for i := range spelers {
 			spelers[i].positie = i + 1
 		}
+		ronde = 1
 	} else {
 		spelers = importeerTourn()
-		s = len(spelers)
+		s = len(spelers)		
+		fmt.Print("Ronde: ")
+		fmt.Scanln(&ronde)
 	}
 	fmt.Print("Spelers per groep: ")
 	fmt.Scanln(&sg)
@@ -219,7 +223,7 @@ func main() {
 	aantalRonden := aantalGroepen + 1
 	gamesPerGroep := sg - 1
 
-	for ronde := 1; ronde <= aantalRonden; ronde++ {
+	for ; ronde <= aantalRonden; ronde++ {
 		fmt.Println("\nRONDE ", ronde, " / ", aantalRonden, "\t\tGames per groep: ", gamesPerGroep)
 		sorteerPerPlaats(spelers)
 		for groep := 1; groep <= aantalGroepen; groep++ {
@@ -286,6 +290,8 @@ func main() {
 			
 			if keuze == 6 {
 				spelers = importeerTourn()
+				fmt.Print("Ronde: ")
+				fmt.Scanln(&ronde)
 			}
 			
 			if keuze == 7 {
