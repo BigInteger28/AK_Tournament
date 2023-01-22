@@ -50,8 +50,11 @@ func stelGroepIn(spelers []Speler, sg int, groep int) {
 }
 
 func maakVolgendeRonde(spelers []Speler, sg int, aantalGroepen int) {
-	var bot int = (sg / 2)+1
-	var top int = (sg + 1) / 3
+	var bot int = sg / 2
+	if sg%2 == 1 {
+		bot++
+	}
+	var top int = sg / 2
 	for g := 1; g <= aantalGroepen; g++ {
 		if g != 1 {
 			for i := 0; i < top; i++ {
@@ -59,7 +62,7 @@ func maakVolgendeRonde(spelers []Speler, sg int, aantalGroepen int) {
 			}
 		}
 		if g != aantalGroepen {
-			for i := bot; i < sg; i++ {
+			for i := bot; i < sg; i++ {			
 				spelers[i+((g-1)*sg)].positie += top
 			}
 		}
@@ -212,12 +215,7 @@ func main() {
 	fmt.Print("Spelers per groep: ")
 	fmt.Scanln(&sg)
 	aantalGroepen := s / sg
-	var aantalRonden int
-	if aantalGroepen <= sg {
-		aantalRonden = sg + 1
-	} else {
-		aantalRonden = aantalGroepen + 1
-	}	
+	aantalRonden := aantalGroepen + 1
 	gamesPerGroep := sg - 1
 
 	for ronde := 1; ronde <= aantalRonden; ronde++ {
