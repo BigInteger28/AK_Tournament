@@ -50,11 +50,8 @@ func stelGroepIn(spelers []Speler, sg int, groep int) {
 }
 
 func maakVolgendeRonde(spelers []Speler, sg int, aantalGroepen int) {
-	var bot int = sg / 2
-	if sg%2 == 1 {
-		bot++
-	}
-	var top int = sg / 2
+	var bot int = (sg / 2) + 1
+	var top int = (sg + 1) / 3
 	for g := 1; g <= aantalGroepen; g++ {
 		if g != 1 {
 			for i := 0; i < top; i++ {
@@ -62,7 +59,7 @@ func maakVolgendeRonde(spelers []Speler, sg int, aantalGroepen int) {
 			}
 		}
 		if g != aantalGroepen {
-			for i := bot; i < sg; i++ {			
+			for i := bot; i < sg; i++ {
 				spelers[i+((g-1)*sg)].positie += top
 			}
 		}
@@ -96,7 +93,7 @@ func importeerTourn() []Speler {
 	var spelers = make([]Speler, len(tourn)/3)
 	for i := range tourn {
 		spelers[i/3].id = i
-		spelers[i/3].positie = (i/3)+1
+		spelers[i/3].positie = (i / 3) + 1
 		if i%3 == 0 {
 			spelers[i/3].naam = tourn[i]
 		} else if i%3 == 1 {
@@ -186,7 +183,7 @@ func main() {
 	var firstchoice int
 	var spelers []Speler
 	scanner := bufio.NewScanner(os.Stdin)
-	fmt.Print("Titel: ")	
+	fmt.Print("Titel: ")
 	scanner.Scan()
 	title = scanner.Text()
 	fmt.Println("\n1.Maak spelers aan")
@@ -195,11 +192,11 @@ func main() {
 	fmt.Scanln(&firstchoice)
 	if firstchoice == 1 {
 		fmt.Print("Aantal spelers: ")
-		fmt.Scanln(&s)		
+		fmt.Scanln(&s)
 		spelers = make([]Speler, s)
 		for i := 0; i < s; i++ {
 			spelers[i].id = i
-			fmt.Print("Naam: ")	
+			fmt.Print("Naam: ")
 			scanner.Scan()
 			spelers[i].naam = scanner.Text()
 			fmt.Print(spelers[i].naam, " is level: ")
@@ -284,20 +281,20 @@ func main() {
 				spelers[speler].naam = naam
 				spelers[speler].level = level
 			}
-			
+
 			if keuze == 6 {
 				spelers = importeerTourn()
 			}
-			
+
 			if keuze == 7 {
 				exportPlayers(&spelers)
 			}
-			
+
 			if keuze == 8 {
 				fmt.Print("Ronde: ")
 				fmt.Scanln(&ronde)
 			}
-			
+
 			fmt.Println("\nRONDE ", ronde, " / ", aantalRonden, "\t\tGames per groep: ", gamesPerGroep)
 			sorteerPerPlaats(spelers)
 			for groep := 1; groep <= aantalGroepen; groep++ {
