@@ -177,10 +177,8 @@ func exportToHtml(spelers []Speler, ronde int, aantalRonden int, aantalGroepen i
 }
 
 func main() {
-	var s int
-	var sg int
+	var s, sg, gamesPerGroep, firstchoice int
 	var title string
-	var firstchoice int
 	var spelers []Speler
 	scanner := bufio.NewScanner(os.Stdin)
 	fmt.Print("Titel: ")
@@ -214,7 +212,8 @@ func main() {
 	fmt.Scanln(&sg)
 	aantalGroepen := s / sg
 	aantalRonden := aantalGroepen + 2
-	gamesPerGroep := sg - 1
+	fmt.Print("Games per groep: ")
+	fmt.Scanln(&gamesPerGroep)
 
 	for ronde := 1; ronde <= aantalRonden; ronde++ {
 		fmt.Println("\nRONDE ", ronde, " / ", aantalRonden, "\t\tGames per groep: ", gamesPerGroep)
