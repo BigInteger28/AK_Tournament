@@ -28,13 +28,22 @@ func sorteerPerPlaats(spelers []Speler) {
 	})
 }
 
+func sorteerInGroep(spelers []Speler) {
+	sort.Slice(spelers, func(i, j int) bool {
+		// Eerst sorteren op score (aflopend)
+		if spelers[i].score != spelers[j].score {
+			return spelers[i].score > spelers[j].score
+		}
+		// Als scores gelijk zijn, sorteren op level (aflopend)
+		return spelers[i].level > spelers[j].level
+	})
+}
+
 func sorteerGroep(spelers []Speler, groep int, sg int) {
 	start := (groep - 1) * sg
 	laatste := start + sg
 	g := spelers[start:laatste]
-	sort.Slice(g, func(i, j int) bool {
-		return (g[i].score) > (g[j].score)
-	})
+	sorteerInGroep(g)
 	for i := start; i < laatste; i++ {
 		spelers[i].positie = i + 1
 	}
@@ -64,7 +73,6 @@ func maakVolgendeRonde(spelers []Speler, sg int, aantalGroepen int) {
 			}
 		}
 	}
-	sorteerPerPlaats(spelers)
 	for i := range spelers {
 		spelers[i].score = 0
 	}
