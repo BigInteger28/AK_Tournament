@@ -138,6 +138,17 @@ func exportPlayers(spelers *[]Speler) {
 	file.Sync()
 }
 
+func updateView(ronde int, aantalRonden int, sg int, aantalGroepen int, gamesPerGroep int, spelers []Speler, ts int) {
+	fmt.Println("\nRONDE ", ronde, " / ", aantalRonden, "\t\tGames per groep: ", gamesPerGroep)
+	for groep := 1; groep <= aantalGroepen; groep++ {
+		fmt.Println("\n\tGROEP ", groep)
+		for s := 0; s < sg; s++ {
+			plaats := s + ((groep - 1) * sg)
+			fmt.Println("\t\t", (spelers)[plaats].positie, " ", (spelers)[plaats].naam, "\t\tLevel:", (spelers)[plaats].level, "\tScore: ", (spelers)[plaats].score, "/", ts)
+		}
+	}
+}
+
 func exportToHtml(spelers []Speler, ronde int, aantalRonden int, aantalGroepen int, gamesPerGroep int, sg int, title string) {
 	var waarden = [4]int{ronde, aantalRonden, aantalGroepen, gamesPerGroep}
 	swaarden := make([]string, 4)
@@ -185,7 +196,7 @@ func exportToHtml(spelers []Speler, ronde int, aantalRonden int, aantalGroepen i
 }
 
 func main() {
-	var s, sg, gamesPerGroep, firstchoice int
+	var s, sg, gamesPerGroep, firstchoice, ts int
 	var title string
 	var spelers []Speler
 	scanner := bufio.NewScanner(os.Stdin)
@@ -223,87 +234,54 @@ func main() {
 	fmt.Print("Games per groep: ")
 	fmt.Scanln(&gamesPerGroep)
 
-	for ronde := 1; ronde <= aantalRonden; ronde++ {
-		fmt.Println("\nRONDE ", ronde, " / ", aantalRonden, "\t\tGames per groep: ", gamesPerGroep)
-		sorteerPerPlaats(spelers)
-		for groep := 1; groep <= aantalGroepen; groep++ {
-			fmt.Println("\n\tGROEP ", groep)
-			for s := 0; s < sg; s++ {
-				plaats := s + ((groep - 1) * sg)
-				fmt.Println("\t\t", spelers[plaats].positie, " ", spelers[plaats].naam, "\t\tLevel:", spelers[plaats].level, "\tScore: ", spelers[plaats].score, "/", (sg-1)*gamesPerGroep)
-			}
-		}
+	for ronde := 0; ronde <= aantalRonden; {
 		keuze := -1
 		kiesgroep := -1
-		//zorg dat het programma niet crasht bij invullen verkeerd nummer of string
-		for keuze != 1 {
+
+		if ronde < aantalRonden {
+			fmt.Println("\n1. Maak volgende ronde aan")
+		} else {
+			fmt.Println("\n1. TOON EINDSTAND")
+		}
+		fmt.Println("2. Vul scores in van een groep")
+		fmt.Println("3. EXPORT CURRENT TO HTML")
+		fmt.Println("4. Verander titel")
+		fmt.Println("5. Wijzig gebruiker gegevens")
+		fmt.Println("6. Importeer spelers")
+		fmt.Println("7. Exporteer spelers")
+		fmt.Println("8. Wijzig ronde")
+		fmt.Println("9. Wijzig eindronde")
+		fmt.Println("10. Wijzig games per groep")
+		fmt.Println("11. Wijzig totale score deze ronde")
+		fmt.Print("Keuze: ")
+		fmt.Scanln(&keuze)
+
+		if ronde == 0 && keuze == 1 {
+			ronde++
+			ts = (sg - 1) * gamesPerGroep
+			sorteerPerPlaats(spelers)
+			updateView(ronde, aantalRonden, sg, aantalGroepen, gamesPerGroep, spelers, ts)
+		} else if keuze == 1 {
 			if ronde < aantalRonden {
-				fmt.Println("\n1. Maak volgende ronde aan")
-			} else {
-				fmt.Println("\n1. TOON EINDSTAND")
-			}
-			fmt.Println("2. Vul scores in van een groep")
-			fmt.Println("3. EXPORT CURRENT TO HTML")
-			fmt.Println("4. Verander titel")
-			fmt.Println("5. Wijzig gebruiker gegevens")
-			fmt.Println("6. Importeer spelers")
-			fmt.Println("7. Exporteer spelers")
-			fmt.Println("8. Wijzig ronde")
-			fmt.Print("Keuze: ")
-			fmt.Scanln(&keuze)
-			if keuze == 2 {
-				fmt.Print("Scores invullen groep: ")
-				fmt.Scanln(&kiesgroep)
-				stelGroepIn(spelers, sg, kiesgroep)
-				for groep := 1; groep <= aantalGroepen; groep++ {
-					fmt.Println("\n\tGROEP ", groep)
-					for s := 0; s < sg; s++ {
-						plaats := s + ((groep - 1) * sg)
-						fmt.Println("\t\t", spelers[plaats].positie, " ", spelers[plaats].naam, "\t\tLevel:", spelers[plaats].level, "\tScore: ", spelers[plaats].score, "/", (sg-1)*gamesPerGroep)
-					}
+				ts = (sg - 1) * gamesPerGroep
+				sorteerPerPlaats(spelers)
+				maakVolgendeRonde(spelers, sg, aantalGroepen)
+				updateView(ronde, aantalRonden, sg, aantalGroepen, gamesPerGroep, spelers, ts)
+				ronde++
+			} else if ronde >= aantalRonden {
+				fmt.Println("\n\n")
+				for o := range spelers {
+					fmt.Println("\t\t", spelers[o].positie, " ", spelers[o].naam, "\t\tLevel:", spelers[o].level)
 				}
-			}
-			if keuze == 3 {
+				ronde++
 				exportToHtml(spelers, ronde, aantalRonden, aantalGroepen, gamesPerGroep, sg, title)
 			}
+		}
 
-			if keuze == 4 {
-				fmt.Print("Titel: ")
-				fmt.Scanln(&title)
-			}
-
-			if keuze == 5 {
-				var speler int
-				var naam string
-				var level int
-				for i := range spelers {
-					fmt.Println(i, spelers[i].naam, spelers[i].level)
-				}
-				fmt.Print("Kies speler: ")
-				fmt.Scanln(&speler)
-				fmt.Print("Naam: ")
-				fmt.Scanln(&naam)
-				fmt.Print("Level: ")
-				fmt.Scanln(&level)
-				spelers[speler].naam = naam
-				spelers[speler].level = level
-			}
-
-			if keuze == 6 {
-				spelers = importeerTourn()
-			}
-
-			if keuze == 7 {
-				exportPlayers(&spelers)
-			}
-
-			if keuze == 8 {
-				fmt.Print("Ronde: ")
-				fmt.Scanln(&ronde)
-			}
-
-			fmt.Println("\nRONDE ", ronde, " / ", aantalRonden, "\t\tGames per groep: ", gamesPerGroep)
-			sorteerPerPlaats(spelers)
+		if keuze == 2 {
+			fmt.Print("Scores invullen groep: ")
+			fmt.Scanln(&kiesgroep)
+			stelGroepIn(spelers, sg, kiesgroep)
 			for groep := 1; groep <= aantalGroepen; groep++ {
 				fmt.Println("\n\tGROEP ", groep)
 				for s := 0; s < sg; s++ {
@@ -312,17 +290,60 @@ func main() {
 				}
 			}
 		}
-		if ronde < aantalRonden {
-			maakVolgendeRonde(spelers, sg, aantalGroepen)
-		} else {
-			fmt.Println("\n\n")
-			maakVolgendeRonde(spelers, sg, aantalGroepen)
-			for o := range spelers {
-				fmt.Println("\t\t", spelers[o].positie, " ", spelers[o].naam, "\t\tLevel:", spelers[o].level)
-			}
-			ronde++
+
+		if keuze == 3 {
 			exportToHtml(spelers, ronde, aantalRonden, aantalGroepen, gamesPerGroep, sg, title)
 		}
+
+		if keuze == 4 {
+			fmt.Print("Titel: ")
+			fmt.Scanln(&title)
+		}
+
+		if keuze == 5 {
+			var speler int
+			var naam string
+			var level int
+			for i := range spelers {
+				fmt.Println(i, spelers[i].naam, spelers[i].level)
+			}
+			fmt.Print("Kies speler: ")
+			fmt.Scanln(&speler)
+			fmt.Print("Naam: ")
+			fmt.Scanln(&naam)
+			fmt.Print("Level: ")
+			fmt.Scanln(&level)
+			spelers[speler].naam = naam
+			spelers[speler].level = level
+		}
+
+		if keuze == 6 {
+			spelers = importeerTourn()
+		}
+
+		if keuze == 7 {
+			exportPlayers(&spelers)
+		}
+
+		if keuze == 8 {
+			fmt.Print("Ronde: ")
+			fmt.Scanln(&ronde)
+		}
+
+		if keuze == 9 {
+			fmt.Print("Eind ronde: ")
+			fmt.Scanln(&aantalRonden)
+		}
+
+		if keuze == 10 {
+			fmt.Print("Games per groep: ")
+			fmt.Scanln(&gamesPerGroep)
+		}
+
+		if keuze == 11 {
+			fmt.Print("Totale score deze ronde: ")
+			fmt.Scanln(&ts)
+			updateView(ronde, aantalRonden, sg, aantalGroepen, gamesPerGroep, spelers, ts)
+		}
 	}
-	fmt.Scanln()
 }
