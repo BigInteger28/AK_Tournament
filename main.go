@@ -75,6 +75,7 @@ func maakVolgendeRonde(spelers []Speler, sg int, aantalGroepen int) {
 	}
 	for i := range spelers {
 		spelers[i].score = 0
+		spelers[i].positie = i + 1
 	}
 }
 
@@ -149,7 +150,7 @@ func updateView(ronde int, aantalRonden int, sg int, aantalGroepen int, gamesPer
 	}
 }
 
-func exportToHtml(spelers []Speler, ronde int, aantalRonden int, aantalGroepen int, gamesPerGroep int, sg int, title string) {
+func exportToHtml(spelers []Speler, ronde int, aantalRonden int, aantalGroepen int, gamesPerGroep int, sg int, ts int, title string) {
 	var waarden = [4]int{ronde, aantalRonden, aantalGroepen, gamesPerGroep}
 	swaarden := make([]string, 4)
 	for i := 0; i < 4; i++ {
@@ -173,7 +174,7 @@ func exportToHtml(spelers []Speler, ronde int, aantalRonden int, aantalGroepen i
 				plaats := s + ((g - 1) * sg)
 				levelS := strconv.Itoa(spelers[plaats].level)
 				scoreS := fmt.Sprintf("%.1f", spelers[plaats].score)
-				htmlcode += "<tr><td>" + strconv.Itoa(spelers[plaats].positie) + "</td><td>" + spelers[plaats].naam + "</td><td>" + levelS + "</td><td>" + scoreS + "</td><td>" + strconv.Itoa((sg-1)*gamesPerGroep) + "</td></tr>"
+				htmlcode += "<tr><td>" + strconv.Itoa(spelers[plaats].positie) + "</td><td>" + spelers[plaats].naam + "</td><td>" + levelS + "</td><td>" + scoreS + "</td><td>" + strconv.Itoa(ts) + "</td></tr>"
 			}
 			htmlcode += "</table>"
 		}
@@ -266,15 +267,15 @@ func main() {
 				ts = (sg - 1) * gamesPerGroep
 				sorteerPerPlaats(spelers)
 				maakVolgendeRonde(spelers, sg, aantalGroepen)
-				updateView(ronde, aantalRonden, sg, aantalGroepen, gamesPerGroep, spelers, ts)
 				ronde++
+				updateView(ronde, aantalRonden, sg, aantalGroepen, gamesPerGroep, spelers, ts)
 			} else if ronde >= aantalRonden {
 				fmt.Println("\n\n")
 				for o := range spelers {
 					fmt.Println("\t\t", spelers[o].positie, " ", spelers[o].naam, "\t\tLevel:", spelers[o].level)
 				}
 				ronde++
-				exportToHtml(spelers, ronde, aantalRonden, aantalGroepen, gamesPerGroep, sg, title)
+				exportToHtml(spelers, ronde, aantalRonden, aantalGroepen, gamesPerGroep, sg, ts, title)
 			}
 		}
 
@@ -292,7 +293,7 @@ func main() {
 		}
 
 		if keuze == 3 {
-			exportToHtml(spelers, ronde, aantalRonden, aantalGroepen, gamesPerGroep, sg, title)
+			exportToHtml(spelers, ronde, aantalRonden, aantalGroepen, gamesPerGroep, sg, ts, title)
 		}
 
 		if keuze == 4 {
